@@ -8,7 +8,7 @@ info:
   version: "0.0.1"
 
 servers:
-  - url: "https://cabify.com"
+  - url: "https://api.cabify.com"
     description: "Production"
   - url: "https://rider-groceries-01.cabify-testing.com"
     description: "Testing"
