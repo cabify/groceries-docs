@@ -8,13 +8,13 @@ info:
   version: "0.0.1"
 
 servers:
-  - url: "https://api.cabify.com"
+  - url: "https://lola.cabify.com"
     description: "Production"
-  - url: "https://rider-groceries-01.cabify-testing.com"
+  - url: "https://lola.rider-groceries-01.cabify-testing.com"
     description: "Testing"
 
 paths:
-  /lola-integration/payments/hook:
+  /integration/payments/hook:
     post:
       tags:
         - "payments"
