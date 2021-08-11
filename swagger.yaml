@@ -1,5 +1,5 @@
 openapi: "3.0.1"
-tags:https://github.com/cabify/groceries-docs/blob/master/swagger.yaml
+tags:
   - name: "payments"
     description: "Payments operations"
 info:
