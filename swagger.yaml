@@ -1,5 +1,5 @@
 openapi: "3.0.1"
-tags:
+tags:https://github.com/cabify/groceries-docs/blob/master/swagger.yaml
   - name: "payments"
     description: "Payments operations"
 info:
@@ -14,7 +14,7 @@ servers:
     description: "Testing"
 
 paths:
-  /lola/payments/hook:
+  /lola/api/v1/payments/hook:
     post:
       tags:
         - "payments"
@@ -36,7 +36,30 @@ paths:
                 $ref: "#/components/schemas/error_message"
         "401":
           description: "unauthorized"
-          
+
+  /third-party/payments/hook:
+    post:
+      tags:
+        - "payments"
+      summary: "Lola WebHook that will listen payment and cancellation result"
+      description: "Since all payments operations are async all payment results will be published into this endpoint."
+      operationId: "result-payments-hook"
+      security:
+        - ApiKeyAuth: [ ]
+      requestBody:
+        $ref: "#/components/requestBodies/paymentsHookResult"
+      responses:
+        "202":
+          description: "message accepted and published"
+        "400":
+          description: "bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error_message"
+        "401":
+          description: "unauthorized"
+
 components:
   requestBodies:
     paymentsHookMessage:
@@ -46,6 +69,14 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/payment_operation"
+
+    paymentsHookResult:
+      description: "Request body for a Payment Operation Result"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/payment_operation_result"
   schemas:
     payment_operation:
       type: "object"
@@ -62,8 +93,8 @@ components:
           type: "string"
           description: "Define the type of Payment Event that needs to be processed"
           enum: [
-            "groceries.order_delivered",
-            "groceries.order_cancelled"
+              "groceries.order_delivered",
+              "groceries.order_cancelled"
           ]
         data:
           type: "object"
@@ -72,7 +103,35 @@ components:
           properties:
             order:
               $ref: "#/components/schemas/order"
-              
+
+    payment_operation_result:
+      type: "object"
+      required:
+        - result
+        - data
+      properties:
+        event:
+          type: "string"
+          description: "Define the type of Payment Event that needs to be processed"
+          enum: [
+              "groceries.order_delivered",
+              "groceries.order_cancelled"
+          ]
+        result:
+          type: "string"
+          description: "An Enum describing the result of the operation"
+          enum:
+            - "success"
+            - "error"
+        message:
+          type: "string"
+          description: "Message describing the error if applicable"
+        data:
+          type: "object"
+          properties:
+            order:
+              $ref: "#/components/schemas/order"
+
     order:
       type: "object"
       required:
@@ -94,7 +153,7 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/order_item"
-            
+
     order_item:
       type: "object"
       required:
@@ -125,22 +184,22 @@ components:
           format: "float"
           description: "Percentage of tax rate included in the price"
           example: 0.0
-        description: 
+        description:
           type: "string"
           description: "Name of the product"
-          
+
     error_message:
       type: "object"
       properties:
         error:
           type: "string"
           description: "Error description"
-          
+
   securitySchemes:
-    ApiKeyAuth:        
+    ApiKeyAuth:
       type: apiKey
-      in: header       
-      name: X-API-KEY  
+      in: header
+      name: X-API-KEY
 
 externalDocs:
   description: "Find out more about Swagger"
