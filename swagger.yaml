@@ -37,6 +37,29 @@ paths:
         "401":
           description: "unauthorized"
 
+  /lola/api/v1/order/hook:
+    post:
+      tags:
+        - "order"
+      summary: "Dispatch order events"
+      description: "Dispatch changes of an <b>Order</b> like state changes.<br><br><b>Events:</b><ul><li><b>groceries.order_state_changed:</b> Dispatch an event to Cabify notifying about states changes of an Order<br>**This event will require the `order` object with the new `state` field**</li></ul>"
+      operationId: "order-hook"
+      security:
+        - ApiKeyAuth: [ ]
+      requestBody:
+        $ref: "#/components/requestBodies/orderHookMessage"
+      responses:
+        "202":
+          description: "message accepted and published"
+        "400":
+          description: "bad request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error_message"
+        "401":
+          description: "unauthorized"
+
   /third-party/payments/hook:
     post:
       tags:
@@ -77,6 +100,15 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/payment_operation_result"
+
+    orderHookMessage:
+      description: "Request body for a Order Operation"
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/order_operation"
+
   schemas:
     payment_operation:
       type: "object"
@@ -95,6 +127,31 @@ components:
           enum: [
               "groceries.order_delivered",
               "groceries.order_cancelled"
+          ]
+        data:
+          type: "object"
+          required:
+            - order
+          properties:
+            order:
+              $ref: "#/components/schemas/order"
+
+    order_operation:
+      type: "object"
+      required:
+        - caller
+        - event
+        - data
+      properties:
+        caller:
+          type: "string"
+          description: "Caller's ID"
+          example: "26345b2f-3125-11eb-87d8-801234232f4e"
+        event:
+          type: "string"
+          description: "Define the type of Order Event that needs to be processed"
+          enum: [
+              "groceries.order_state_changed"
           ]
         data:
           type: "object"
@@ -149,6 +206,15 @@ components:
           type: "integer"
           description: "Order's total amount, decimal value multipled by 100"
           example: "10000"
+        state:
+          type: "string"
+          description: "Current order state"
+          example: "delivered"
+          enum:
+            - "confirmed"
+            - "shopping"
+            - "delivering"
+            - "delivered"
         items:
           type: "array"
           items:
